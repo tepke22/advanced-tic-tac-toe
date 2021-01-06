@@ -23,7 +23,7 @@ Aplikacija je izradjena u programskom jeziku C# (Windows Forms .NET Framework) u
 
 Ako posedujete Visual Studio možete pokrenuti aplikaciju jednostavnim učitavanjem koda i klikom na Start.
 
-U slučaju da ne posedujete Visual Studio kreiran je [**.msi**](https://github.com/tepke22/advanced-tic-tac-toe/blob/master/AdvancedTicTacToeSetup.msi) fajl za jednostavnu instalaciju aplikacije na vaš računar.
+U slučaju da ne posedujete Visual Studio kreiran je [**.msi**](https://github.com/tepke22/advanced-tic-tac-toe/blob/master/AdvancedTicTacToeSetup.msi) fajl za jednostavnu instalaciju aplikacije na vaš računar. Nažalost Windows vam neće baš olako dozvoliti da instalirate ovu aplikaciju pa je nakon pokretanja **.msi** fajla potrebno kliknuti na **"More info"** i zatim **"Run anyway"**.
 
 ## Igra
 Klikom na dugme **"Start"** nasumično se odredjuje ko prvi igra, ako funkcija Random vrati **0** prvi igrač je **"Računar"** a ako izbaci **1** prvi igrač je **"Čovek"**.
