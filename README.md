@@ -2,7 +2,7 @@
 
 ## dresscode.ing & VegaIT Sourcing Hackaton
 
-Aplikacija izradjena u svrhe učestvovanja u Hackaton-u organizovanom od strane instagram stranice [dresscode.ing](https://www.instagram.com/dresscode.ing/) i kompanije [VegaIT Sourcing](https://www.instagram.com/vegaitsourcing/).
+Aplikacija izradjena u svrhe učestvovanja na Hackaton-u organizovanom od strane instagram stranice [dresscode.ing](https://www.instagram.com/dresscode.ing/) i kompanije [VegaIT Sourcing](https://www.instagram.com/vegaitsourcing/).
 
 ## Aplikacija
 
@@ -28,4 +28,12 @@ U slučaju da ne posedujete Visual Studio kreiran je [**.msi**](https://github.c
 ## Igra
 Klikom na dugme **"Start"** nasumično se odredjuje ko prvi igra, ako funkcija Random vrati **0** prvi igrač je **"Računar"** a ako izbaci **1** prvi igrač je **"Čovek"**.
 
-Ako dodje do nečije pobede ili je nerešeno, iskače prozor sa objavom pobednika tj. ispisom "Nerešeno" i pitanjem da li restartovati igru.
+Znak se postavlja klikom na odredjeno polje, Računar igra 1 sekundu kasnije, nakon vašeg poteza. Ako Računar igra prvi potrebno je sačekati da on odigra prvi potez.
+
+Ako dodje do nečije pobede ili je nerešeno, iskače prozor sa objavom pobednika tj. ispisom "Nerešeno" i pitanjem da li želite da restartujete igru.
+
+## Način razmišljanja Računara
+
+- Ako računar uvidi priliku da pobedi, iskoristiće je
+- Ukoliko nema priliku da pobedi proveriće imate li vi (Čovek) priliku da pobedite, ako imate, sabotiraće vas
+- Ukoliko se ne desi ništa od gore navedenih slučajeva upisuje odgovarajući znak na Random odabrano mesto
