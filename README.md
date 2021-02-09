@@ -1,4 +1,4 @@
-# Napredni Iks-Oks
+# Napredni Iks-Oks (Version 1)
 
 ## dresscode.ing & VegaIT Sourcing Hackaton
 
@@ -32,7 +32,7 @@ Znak se postavlja klikom na odredjeno polje, Računar igra 1 sekundu kasnije, na
 
 Ako dodje do nečije pobede ili je nerešeno, iskače prozor sa objavom pobednika tj. ispisom "Nerešeno" i pitanjem da li želite da restartujete igru.
 
-## Način razmišljanja Računara
+## Način razmišljanja Računara (Version 1)
 
 - Ako računar uvidi priliku da pobedi, iskoristiće je
 - Ukoliko nema priliku da pobedi proveriće imate li vi (Čovek) priliku da pobedite, ako imate, sabotiraće vas
