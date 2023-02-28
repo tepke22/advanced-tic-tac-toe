@@ -473,7 +473,7 @@ namespace AdvancedTicTacToe
             this.btnStart.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(60)))), ((int)(((byte)(67)))));
             this.btnStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStart.Font = new System.Drawing.Font("Consolas", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.Location = new System.Drawing.Point(140, 114);
+            this.btnStart.Location = new System.Drawing.Point(140, 96);
             this.btnStart.Margin = new System.Windows.Forms.Padding(0);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(166, 54);
@@ -484,20 +484,22 @@ namespace AdvancedTicTacToe
             // 
             // lbPlayFirst
             // 
-            this.lbPlayFirst.Font = new System.Drawing.Font("Consolas", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbPlayFirst.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.lbPlayFirst.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbPlayFirst.ForeColor = System.Drawing.Color.White;
-            this.lbPlayFirst.Location = new System.Drawing.Point(204, 189);
+            this.lbPlayFirst.Location = new System.Drawing.Point(132, 167);
             this.lbPlayFirst.Name = "lbPlayFirst";
-            this.lbPlayFirst.Size = new System.Drawing.Size(198, 36);
+            this.lbPlayFirst.Size = new System.Drawing.Size(304, 36);
             this.lbPlayFirst.TabIndex = 28;
             this.lbPlayFirst.Text = "Prvi igra -> ";
-            this.lbPlayFirst.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbPlayFirst.Click += new System.EventHandler(this.lbPlayFirst_Click);
             // 
             // label9
             // 
+            this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label9.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(74, 186);
+            this.label9.Location = new System.Drawing.Point(13, 160);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(113, 49);
             this.label9.TabIndex = 29;
