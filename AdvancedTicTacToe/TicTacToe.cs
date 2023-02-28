@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
 
 namespace AdvancedTicTacToe
 {
@@ -34,19 +38,22 @@ namespace AdvancedTicTacToe
             InitializeComponent();
         }
 
-        private enum OrderType {
-            hozironta,
+        private enum OrderType
+        {
+            horizontal,
             vertical,
             mainDiagonal,
             secondaryDiagonal,
             cube
         }
-        private enum FieldValue {
+        private enum FieldValue
+        {
             X,
             O
         }
 
-        private enum PlayerType{
+        private enum PlayerType
+        {
             computer = 0,
             human = 1
         }
@@ -77,6 +84,9 @@ namespace AdvancedTicTacToe
             }
         }
 
+
+        /* Button click event */
+
         private void btnStart_Click(object sender, EventArgs e)
         {
             if (gameStarted)
@@ -99,19 +109,9 @@ namespace AdvancedTicTacToe
             lbTurn.Text = "{ " + GetPlayerTypeName() + " igra prvi }";
         }
 
-        
-
-        private string GetPlayerTypeName() {
-            switch (currentTurn) {
-                case PlayerType.human: return ResLibrary.humanLbl;
-                case PlayerType.computer: return ResLibrary.computerLbl;
-                default: return "";
-            }
-        }
-
         private void XorO_Click(object sender, EventArgs e)
         {
-            Button fieldButton = (Button) sender;
+            Button fieldButton = (Button)sender;
             if (!gameStarted)
                 return;
             if (fieldButton.Text != "")
@@ -143,7 +143,9 @@ namespace AdvancedTicTacToe
             PCtimer.Start();
         }
 
-        
+        /* !!! Button click event !!! */
+
+        /* Computer logic */
 
         private void PCtimer_Tick(object sender, EventArgs e)
         {
@@ -214,127 +216,35 @@ namespace AdvancedTicTacToe
                 currentTurn = PlayerType.human;
             }
         }
-        
-        
+
+        /* !!! Computer logic !!! */
+
+        /* Checking for win function */
+
         private bool CheckForWin(Button[,] matrix, bool clone)
         {
-            int i, j, counter = 0;
-            int count = 0;
-            string matchColumns = "b_{0}_[0-3]";
-            string matchRows = "b_[0-3]_{0}";
-            string matchMainDiagonal = "b_([0-3])_\\1";
-            string matchSecondaryDiagonal = "\b[bB]_(0_3|3_0|1_2|2_1)\b";
+            int i = 0, j = 0;
 
-            for (i = 0; i < n; i++)
+            foreach (OrderType order in Enum.GetValues(typeof(OrderType)))
             {
-                /*counter = 0;
-                for (j = 0; j < n - 1; j++)
+                if (CheckWin(order,clone, ref i, ref j))
                 {
-                    if (matrixOfButtons[i, j].Text != "" && matrixOfButtons[i, (j + 1)].Text != "" && (matrixOfButtons[i, j].Text == matrixOfButtons[i, (j + 1)].Text))
-                    {
-                        counter++;
-                    }
-                }
-                if (counter == n - 1)
-                {
+                    Console.WriteLine("Pobeda lol " + order.ToString());
                     if (!clone)
-                        ColorWin(OrderType.hozironta, i);
+                        ColorWin(order, i, j);
                     return true;
-                }*/
-               count = allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchColumns, i))).Where(field => field.Text == GetCurrentPlayerSign()).Count();
-                if (count == n)
-                    Console.WriteLine("Pobeda lol horizont");
-            }
-
-            for (j = 0; j < n; j++)
-            {
-                /*counter = 0;
-                for (i = 0; i < n - 1; i++)
-                {
-                    if (matrixOfButtons[i, j].Text != "" && matrixOfButtons[(i + 1), j].Text != "" && (matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), j].Text))
-                    {
-                        counter++;
-                    }
-                }
-                if (counter == n - 1)
-                {
-                    if (!clone)
-                        ColorWin(OrderType.vertical, j);
-                    return true;
-                }*/
-                count = allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchRows, j))).Where(field => field.Text == GetCurrentPlayerSign()).Count();
-                if (count == n)
-                    Console.WriteLine("Pobeda lol vertical");
-            }
-
-            /*counter = 0;
-            for (i = 0; i < n - 1; i++)
-            {
-                if (matrixOfButtons[i, i].Text != "" && matrixOfButtons[i, i].Text == matrixOfButtons[(i + 1), (i + 1)].Text)
-                {
-                    counter++;
-                }
-                if (counter == n - 1)
-                {
-                    if (!clone)
-                        ColorWin(OrderType.mainDiagonal);
-                    return true;
-                }
-            }*/
-
-            count = allButtons.Where(field => Regex.IsMatch(field.Name,matchMainDiagonal)).Where(field => field.Text == GetCurrentPlayerSign()).Count();
-            if (count == n)
-                Console.WriteLine("Pobeda lol main diagonal");
-
-            /*counter = 0;
-            for (i = 0; i < n - 1; i++)
-            {
-                if (matrixOfButtons[i, (n - i - 1)].Text != "" && matrixOfButtons[i, (n - i - 1)].Text == matrixOfButtons[(i + 1), (n - i - 2)].Text)
-                {
-                    counter++;
-                }
-                if (counter == n - 1)
-                {
-                    if (!clone)
-                        ColorWin(OrderType.secondaryDiagonal);
-                    return true;
-                }
-            }*/
-
-            count = allButtons.Where(field => Regex.IsMatch(field.Name, matchSecondaryDiagonal)).Count();
-            if (count == n)
-                Console.WriteLine("Pobeda lol secondary diagonal");
-
-
-            for (i = 0; i < n - 1; i++)
-            {
-                counter = 0;
-                for (j = 0; j < n - 1; j++)
-                {
-                    if (matrixOfButtons[i, j].Text != "" && matrixOfButtons[i, j].Text == matrixOfButtons[i, (j + 1)].Text &&
-                       matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), j].Text &&
-                       matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), (j + 1)].Text)
-                    {
-                        counter++;
-                    }
-                    if (counter == 1)
-                    {
-                        if (!clone)
-                            ColorWin(OrderType.cube, i, j);
-                        return true;
-                    }
                 }
             }
-
             return false;
         }
+
         private void ColorWin(OrderType orderType, int index = 0, int index2 = 0)
         {
 
             List<Button> winnerButtons = null;
             switch (orderType)
             {
-                case OrderType.hozironta:
+                case OrderType.horizontal:
                     winnerButtons = allButtons.Where(b => Convert.ToInt32(b.Name.Split('_')[1]) == index).ToList();
                     break;
                 case OrderType.vertical:
@@ -362,11 +272,154 @@ namespace AdvancedTicTacToe
             winnerButtons.ForEach(b => b.BackColor = ResLibrary.lightBlue);
         }
 
+        private bool CheckWin(OrderType order, bool clone, ref int index, ref int index2)
+        {
+            int i = 0, j = 0;
+
+            string matchColumns = "b_{0}_[0-3]";
+            string matchRows = "b_[0-3]_{0}";
+            string matchMainDiagonal = "b_([0-3])_\\1";
+            string matchSecondaryDiagonal = "\\b[bB]_(0_3|3_0|1_2|2_1)\\b";
+
+            string currentPlayerSign = GetCurrentPlayerSign();
+            if (clone)
+                currentPlayerSign = GetOppositePlayerSign();
+
+            switch (order)
+            {
+                case OrderType.horizontal:
+                    {
+                        for (i = 0; i < n; i++)
+                            if (allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchColumns, i))).
+                                           Where(field => field.Text == currentPlayerSign).
+                                           Count().
+                                           Equals(n))
+                            {
+                                index = i;
+                                return true;
+                            }
+                        return false;
+                    }
+                case OrderType.vertical:
+                    {
+                        for (i = 0; i < n; i++)
+                            if (allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchRows, i))).
+                                           Where(field => field.Text == currentPlayerSign).
+                                           Count().
+                                           Equals(n))
+                            {
+                                index = i;
+                                return true;
+                            }
+                        return false;
+                    }
+                case OrderType.mainDiagonal:
+                    {
+                        if (allButtons.Where(field => Regex.IsMatch(field.Name, matchMainDiagonal)).
+                                       Where(field => field.Text == currentPlayerSign).
+                                       Count().
+                                       Equals(n))
+                            return true;
+                        return false;
+                    }
+                case OrderType.secondaryDiagonal:
+                    {
+
+                        if (allButtons.Where(field => Regex.IsMatch(field.Name, matchSecondaryDiagonal)).
+                                       Where(field => field.Text == currentPlayerSign).
+                                       Count().
+                                       Equals(n))
+                            return true;
+                        return false;
+                    }
+                case OrderType.cube:
+                    {
+                        for (i = 0; i < n - 1; i++)
+                            for (j = 0; j < n - 1; j++)
+                                if (matrixOfButtons[i, j].Text != "" && matrixOfButtons[i, j].Text == matrixOfButtons[i, (j + 1)].Text &&
+                                    matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), j].Text &&
+                                    matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), (j + 1)].Text)
+                                {
+                                    index = i;
+                                    index2 = j;
+                                    return true;
+                                }
+                        return false;
+                    }
+                default:
+                    return false;
+
+            }
+        }
+
+        /* !!! Checking for win function !!! */
 
 
+        /* Game states functions */
 
+        private void RestartGame()
+        {
+            ResetAllButtons();
+            PCtimer.Stop();
+            availableButtons = panel1.Controls.OfType<Button>().ToList();
+            gameStarted = false;
+            lbTurn.Text = "{ }";
+            lbPlayFirst.Text = String.Format(firstPlaysLbl, "");
+        }
 
+        private void ResetAllButtons()
+        {
+            allButtons.ForEach(btn =>
+            {
+                btn.Text = "";
+                btn.BackColor = ResLibrary.darkBlue;
+                btn.Enabled = true;
+            });
+        }
 
+        private void GameWon()
+        {
+            gameStarted = false;
+            lbTurn.Text = "{ " + ((PCplay) ? "Računar" : "Čovek") + " je pobedio }";
+            allButtons.ForEach(btn => btn.Enabled = false);
+        }
+
+        private void GameDraw()
+        {
+            gameStarted = false;
+            lbTurn.Text = ResLibrary.DrawBracketsLbl;
+            allButtons.ForEach(btn => btn.Enabled = false);
+        }
+
+        /* !!! Game states functions !!! */
+
+        /* Helper functions */
+
+        private string GetPlayerTypeName()
+        {
+            switch (currentTurn)
+            {
+                case PlayerType.human: return ResLibrary.humanLbl;
+                case PlayerType.computer: return ResLibrary.computerLbl;
+                default: return "";
+            }
+        }
+
+        private void AssignPlayersSigns(PlayerType firstToPlay)
+        {
+            humanSign = (firstToPlay == PlayerType.human) ? FieldValue.X : FieldValue.O;
+            computerSign = (humanSign == FieldValue.X) ? FieldValue.O : FieldValue.X;
+        }
+
+        private string GetCurrentPlayerSign()
+        {
+            return (currentTurn == PlayerType.human) ? humanSign.ToString() : computerSign.ToString();
+        }
+
+        private string GetOppositePlayerSign()
+        {
+            return (currentTurn == PlayerType.human) ? computerSign.ToString() : humanSign.ToString();
+        }
 
         public void wait(int milliseconds)
         {
@@ -389,48 +442,10 @@ namespace AdvancedTicTacToe
             }
         }
 
-        private void AssignPlayersSigns(PlayerType firstToPlay)
-        {
-            humanSign = (firstToPlay == PlayerType.human) ? FieldValue.X : FieldValue.O;
-            computerSign = (humanSign == FieldValue.X) ? FieldValue.O : FieldValue.X;
-        }
+        /* !!! Helper functions !!! */
 
-        private string GetCurrentPlayerSign() 
-        {
-            return (currentTurn == PlayerType.human) ? humanSign.ToString() : computerSign.ToString();
-        }
 
-        private void RestartGame()
-        {
-            ResetAllButtons();
-            PCtimer.Stop();
-            availableButtons = panel1.Controls.OfType<Button>().ToList();
-            gameStarted = false;
-            lbTurn.Text = "{ }";
-        }
-
-        private void ResetAllButtons()
-        {
-            allButtons.ForEach(btn =>
-            {
-                btn.Text = "";
-                btn.BackColor = ResLibrary.darkBlue;
-                btn.Enabled = true;
-            });
-        }
-        private void GameWon()
-        {
-            gameStarted = false;
-            lbTurn.Text = "{ " + ((PCplay) ? "Računar" : "Čovek") + " je pobedio }";
-            allButtons.ForEach(btn => btn.Enabled = false);
-        }
-
-        private void GameDraw()
-        {
-            gameStarted = false;
-            lbTurn.Text = ResLibrary.DrawBracketsLbl;
-            allButtons.ForEach(btn => btn.Enabled = false);
-        }
+        /* Label events */
 
         private void lbExit_MouseEnter(object sender, EventArgs e)
         {
@@ -465,12 +480,10 @@ namespace AdvancedTicTacToe
         {
             lbExit.ForeColor = ResLibrary.white;
         }
-
         private void lbMinimize_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
         }
-
         private void lbExit_Click(object sender, EventArgs e)
         {
             this.Dispose();
@@ -480,7 +493,6 @@ namespace AdvancedTicTacToe
         {
             mouseLocation = e.Location;
         }
-
         private void lbTitle_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -491,9 +503,6 @@ namespace AdvancedTicTacToe
             }
         }
 
-        private void lbPlayFirst_Click(object sender, EventArgs e)
-        {
-
-        }
+        /* !!! Label events !!! */
     }
 }

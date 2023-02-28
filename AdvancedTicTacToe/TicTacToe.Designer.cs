@@ -492,7 +492,6 @@ namespace AdvancedTicTacToe
             this.lbPlayFirst.Size = new System.Drawing.Size(304, 36);
             this.lbPlayFirst.TabIndex = 28;
             this.lbPlayFirst.Text = "Prvi igra -> ";
-            this.lbPlayFirst.Click += new System.EventHandler(this.lbPlayFirst_Click);
             // 
             // label9
             // 
