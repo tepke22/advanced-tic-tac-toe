@@ -31,7 +31,7 @@ namespace AdvancedTicTacToe
         private int waitTime;
         private Random r;
 
-        private string firstPlaysLbl = "Prvi igra -> {0} ";
+        private readonly string firstPlaysLbl = "Prvi igra -> {0} ";
 
         public TicTacToe()
         {
@@ -120,13 +120,13 @@ namespace AdvancedTicTacToe
                 return;
 
             fieldButton.Text = humanSign.ToString();
-            lbTurn.Text = "{ " + ((!PCplay) ? "Računar" : "Čovek") + " je na potezu }";
+            lbTurn.Text = "{ " + GetOppositePlayerTypeName() + " je na potezu }";
             availableButtons.Remove(fieldButton);
             if (CheckForWin(matrixOfButtons, false))
             {
                 GameWon();
                 wait(waitTime);
-                if (new CustomDialog("Pobedio je " + ((PCplay) ? "Računar" : "Čovek") + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
+                if (new CustomDialog("Pobedio je " + GetPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
                     RestartGame();
                 return;
             }
@@ -195,7 +195,7 @@ namespace AdvancedTicTacToe
                 {
                     GameWon();
                     wait(waitTime);
-                    if (new CustomDialog("Pobedio je " + ((PCplay) ? "Računar" : "Čovek") + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
+                    if (new CustomDialog("Pobedio je " + GetPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
                     {
                         RestartGame();
                     }
@@ -211,7 +211,7 @@ namespace AdvancedTicTacToe
                     }
                     return;
                 }
-                lbTurn.Text = "{ " + ((!PCplay) ? "Računar" : "Čovek") + " je na potezu }";
+                lbTurn.Text = "{ " + GetOppositePlayerTypeName() + " je na potezu }";
                 PCplay = false;
                 currentTurn = PlayerType.human;
             }
@@ -227,7 +227,7 @@ namespace AdvancedTicTacToe
 
             foreach (OrderType order in Enum.GetValues(typeof(OrderType)))
             {
-                if (CheckWin(order,clone, ref i, ref j))
+                if (CheckWin(order, clone, ref i, ref j))
                 {
                     Console.WriteLine("Pobeda lol " + order.ToString());
                     if (!clone)
@@ -380,7 +380,7 @@ namespace AdvancedTicTacToe
         private void GameWon()
         {
             gameStarted = false;
-            lbTurn.Text = "{ " + ((PCplay) ? "Računar" : "Čovek") + " je pobedio }";
+            lbTurn.Text = "{ " + GetPlayerTypeName() + " je pobedio }";
             allButtons.ForEach(btn => btn.Enabled = false);
         }
 
@@ -401,6 +401,16 @@ namespace AdvancedTicTacToe
             {
                 case PlayerType.human: return ResLibrary.humanLbl;
                 case PlayerType.computer: return ResLibrary.computerLbl;
+                default: return "";
+            }
+        }
+
+        private string GetOppositePlayerTypeName()
+        {
+            switch (currentTurn)
+            {
+                case PlayerType.human: return ResLibrary.computerLbl;
+                case PlayerType.computer: return ResLibrary.humanLbl;
                 default: return "";
             }
         }

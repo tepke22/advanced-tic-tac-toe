@@ -58,7 +58,6 @@ namespace AdvancedTicTacToe
             this.label7 = new System.Windows.Forms.Label();
             this.btnStart = new System.Windows.Forms.Button();
             this.lbPlayFirst = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.PCtimer = new System.Windows.Forms.Timer(this.components);
             this.lbMinimize = new System.Windows.Forms.Label();
             this.lbExit = new System.Windows.Forms.Label();
@@ -487,23 +486,12 @@ namespace AdvancedTicTacToe
             this.lbPlayFirst.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbPlayFirst.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbPlayFirst.ForeColor = System.Drawing.Color.White;
-            this.lbPlayFirst.Location = new System.Drawing.Point(132, 167);
+            this.lbPlayFirst.Location = new System.Drawing.Point(12, 167);
             this.lbPlayFirst.Name = "lbPlayFirst";
-            this.lbPlayFirst.Size = new System.Drawing.Size(304, 36);
+            this.lbPlayFirst.Size = new System.Drawing.Size(424, 36);
             this.lbPlayFirst.TabIndex = 28;
             this.lbPlayFirst.Text = "Prvi igra -> ";
-            // 
-            // label9
-            // 
-            this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label9.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(13, 160);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(113, 49);
-            this.label9.TabIndex = 29;
-            this.label9.Text = "0 - Računar\r\n1 - Čovek";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbPlayFirst.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // PCtimer
             // 
@@ -579,7 +567,6 @@ namespace AdvancedTicTacToe
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lbMinimize);
             this.Controls.Add(this.lbExit);
-            this.Controls.Add(this.label9);
             this.Controls.Add(this.lbPlayFirst);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.label7);
@@ -627,7 +614,6 @@ namespace AdvancedTicTacToe
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Label lbPlayFirst;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Timer PCtimer;
         private System.Windows.Forms.Label lbMinimize;
         private System.Windows.Forms.Label lbExit;
