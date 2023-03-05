@@ -33,6 +33,7 @@ namespace AdvancedTicTacToe
 
         private int waitTime;
         private Random r;
+        private int depth = 12;
 
         private readonly string firstPlaysLbl = "Prvi igra -> {0} ";
 
@@ -194,7 +195,7 @@ namespace AdvancedTicTacToe
             else
                 bestScore = int.MaxValue;
 
-            List<int> scores = new List<int>();
+            List<Button> bestMoves = new List<Button>();
 
             Button bestMove = null;
             int score = 0;
@@ -203,33 +204,41 @@ namespace AdvancedTicTacToe
             foreach (Button tempAvailableMove in tempAvailableButtons)
             {
                 clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetCurrentPlayerSign();
-                score = Minimax(clonedAllButtons, 0, !isPlayerMaximizing);
-                scores.Add(score);
+                score = Minimax(clonedAllButtons, depth, Int32.MinValue, Int32.MaxValue, !isPlayerMaximizing);
                 clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
                 Console.WriteLine(tempAvailableMove.Name + ": " + score.ToString());
                 if (isPlayerMaximizing)
                 {
-                    if (score > bestScore)
+                    if (score >= bestScore)
                     {
                         bestScore = score;
-                        bestMove = tempAvailableMove;
+                        if (score == bestScore)
+                            bestMoves.Add(tempAvailableMove);
+                        else
+                        {
+                            bestMoves.Clear();
+                            bestMoves.Add(tempAvailableMove);
+                        }
                     }
                 }
                 else
                 {
-                    if (score < bestScore)
+                    if (score <= bestScore)
                     {
                         bestScore = score;
-                        bestMove = tempAvailableMove;
+                        if (score == bestScore)
+                            bestMoves.Add(tempAvailableMove);
+                        else
+                        {
+                            bestMoves.Clear();
+                            bestMoves.Add(tempAvailableMove);
+                        }
                     }
                 }
 
             }
             currentTurn = PlayerType.computer;
-            if (scores.Where(s => s.Equals(0)).Count() == scores.Count()) 
-            {
-                goto RANDOM;
-            }
+            bestMove = bestMoves[r.Next(bestMoves.Count())];
             if (bestMove != null)
             {
                 allButtons.First(btn => btn.Name.Equals(bestMove.Name)).Text = GetCurrentPlayerSign();
@@ -260,17 +269,16 @@ namespace AdvancedTicTacToe
             lbTurn.Text = "{ " + GetCurrentPlayerTypeName() + " je na potezu }";
         }
 
-        private int Minimax(List<Button> clonedAllButtons, int depth, bool isMaximising)
+        private int Minimax(List<Button> clonedAllButtons, int depth, int alpha, int beta, bool isMaximising)
         {
-            if (depth == 5)
+            if (depth == 0)
                 return 0;
-            currentTurn = (isMaximising) ? firstToPlay : (firstToPlay == PlayerType.human) ? PlayerType.computer : PlayerType.human;
             //PrintMatrix(clonedAllButtons);
-            if (CheckForWin(clonedAllButtons, false, GetCurrentPlayerSign()))
-                return (isMaximising) ? 1 : -1;
+            if (CheckForWin(clonedAllButtons, false, GetPlayerSign(maximizingPlayer)))
+                return 1;
 
-            if (CheckForWin(clonedAllButtons, false, GetOppositePlayerSign()))
-                return (isMaximising) ? -1 : 1;
+            if (CheckForWin(clonedAllButtons, false, GetPlayerSign(minimizingPlayer)))
+                return -1;
 
             if (clonedAllButtons.Where(btn => btn.Text != "").Count().Equals(n * n))
                 return 0;
@@ -285,9 +293,12 @@ namespace AdvancedTicTacToe
                     if (tempAvailableMove.Text != "")
                         continue;
                     clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetPlayerSign(maximizingPlayer);
-                    score = Minimax(clonedAllButtons, depth + 1, !isMaximising);
+                    score = Minimax(clonedAllButtons, depth - 1, alpha, beta, !isMaximising);
                     clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
                     bestScore = Math.Max(score, bestScore);
+                    alpha = Math.Max(alpha, score);
+                    if (beta <= alpha)
+                        break;
                 }
                 return bestScore;
             }
@@ -301,9 +312,12 @@ namespace AdvancedTicTacToe
                     if (tempAvailableMove.Text != "")
                         continue;
                     clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetPlayerSign(minimizingPlayer);
-                    score = Minimax(clonedAllButtons, depth + 1, !isMaximising);
+                    score = Minimax(clonedAllButtons, depth - 1, alpha, beta, !isMaximising);
                     clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
                     bestScore = Math.Min(score, bestScore);
+                    beta = Math.Min(beta, score);
+                    if (beta <= alpha)
+                        break;
                 }
                 return bestScore;
             }
