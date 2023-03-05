@@ -77,6 +77,11 @@ namespace AdvancedTicTacToe
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.b_2_2);
+            this.panel1.Controls.Add(this.b_0_3);
+            this.panel1.Controls.Add(this.b_0_2);
+            this.panel1.Controls.Add(this.b_0_1);
+            this.panel1.Controls.Add(this.b_0_0);
+            this.panel1.Controls.Add(this.b_2_0);
             this.panel1.Controls.Add(this.b_2_1);
             this.panel1.Controls.Add(this.b_1_2);
             this.panel1.Controls.Add(this.b_1_1);
@@ -85,13 +90,8 @@ namespace AdvancedTicTacToe
             this.panel1.Controls.Add(this.b_3_1);
             this.panel1.Controls.Add(this.b_3_0);
             this.panel1.Controls.Add(this.b_2_3);
-            this.panel1.Controls.Add(this.b_2_0);
             this.panel1.Controls.Add(this.b_1_3);
             this.panel1.Controls.Add(this.b_1_0);
-            this.panel1.Controls.Add(this.b_0_3);
-            this.panel1.Controls.Add(this.b_0_2);
-            this.panel1.Controls.Add(this.b_0_1);
-            this.panel1.Controls.Add(this.b_0_0);
             this.panel1.Location = new System.Drawing.Point(12, 225);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(10);
@@ -246,7 +246,7 @@ namespace AdvancedTicTacToe
             this.b_3_3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_3_3.Font = new System.Drawing.Font("Comic Sans MS", 33.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.b_3_3.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.b_3_3.Location = new System.Drawing.Point(300, 288);
+            this.b_3_3.Location = new System.Drawing.Point(300, 290);
             this.b_3_3.Margin = new System.Windows.Forms.Padding(20);
             this.b_3_3.Name = "b_3_3";
             this.b_3_3.Size = new System.Drawing.Size(80, 80);
@@ -264,7 +264,7 @@ namespace AdvancedTicTacToe
             this.b_3_2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_3_2.Font = new System.Drawing.Font("Comic Sans MS", 33.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.b_3_2.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.b_3_2.Location = new System.Drawing.Point(214, 288);
+            this.b_3_2.Location = new System.Drawing.Point(214, 290);
             this.b_3_2.Margin = new System.Windows.Forms.Padding(20);
             this.b_3_2.Name = "b_3_2";
             this.b_3_2.Size = new System.Drawing.Size(80, 80);
@@ -282,7 +282,7 @@ namespace AdvancedTicTacToe
             this.b_3_1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_3_1.Font = new System.Drawing.Font("Comic Sans MS", 33.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.b_3_1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.b_3_1.Location = new System.Drawing.Point(128, 288);
+            this.b_3_1.Location = new System.Drawing.Point(128, 290);
             this.b_3_1.Margin = new System.Windows.Forms.Padding(20);
             this.b_3_1.Name = "b_3_1";
             this.b_3_1.Size = new System.Drawing.Size(80, 80);
@@ -300,7 +300,7 @@ namespace AdvancedTicTacToe
             this.b_3_0.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.b_3_0.Font = new System.Drawing.Font("Comic Sans MS", 33.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.b_3_0.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.b_3_0.Location = new System.Drawing.Point(42, 288);
+            this.b_3_0.Location = new System.Drawing.Point(42, 290);
             this.b_3_0.Margin = new System.Windows.Forms.Padding(20);
             this.b_3_0.Name = "b_3_0";
             this.b_3_0.Size = new System.Drawing.Size(80, 80);

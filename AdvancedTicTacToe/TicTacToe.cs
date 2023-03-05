@@ -9,12 +9,12 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace AdvancedTicTacToe
 {
     public partial class TicTacToe : Form
     {
-        private bool PCplay;
         private bool gameStarted = false;
         private Button[,] matrixOfButtons;
         private int n;
@@ -27,6 +27,9 @@ namespace AdvancedTicTacToe
 
         private PlayerType firstToPlay;
         private PlayerType currentTurn;
+
+        private PlayerType maximizingPlayer;
+        private PlayerType minimizingPlayer;
 
         private int waitTime;
         private Random r;
@@ -58,30 +61,47 @@ namespace AdvancedTicTacToe
             human = 1
         }
 
+        private enum Score
+        {
+            X = 1,
+            O = -1,
+            tie = 0
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            waitTime = 700;
+            waitTime = 500;
             r = new Random();
-
-            PCplay = false;
 
             n = 4;
             matrixOfButtons = new Button[n, n];
 
             allButtons = panel1.Controls.OfType<Button>().ToList();
-            availableButtons = panel1.Controls.OfType<Button>().ToList();
+            allButtons.ForEach(btn => { btn.Click += new EventHandler(XorO_Click); btn.Text = ""; });
+            GetAvailableButtons();
 
             for (int i = 0; i < n; i++)
                 for (int j = 0; j < n; j++)
                     matrixOfButtons[i, j] = allButtons.First(b => b.Name == $"b_{i}_{j}");
 
             gameStarted = false;
+        }
 
-            foreach (Button b in allButtons)
+        private void PrintMatrix(List<Button> cloned)
+        {
+            Console.WriteLine();
+            //Console.WriteLine(cloned.Count.ToString());
+
+            for (int i = 0; i < cloned.Count; i++)
             {
-                b.Click += new EventHandler(XorO_Click);
-                b.Text = "";
+                if (i % 4 == 0 && i != 0)
+                {
+                    Console.WriteLine();
+                }
+                Console.Write(((cloned[i].Text == "") ? "-" : cloned[i].Text) + "   ");
             }
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
 
@@ -96,50 +116,47 @@ namespace AdvancedTicTacToe
             firstToPlay = (r.Next(0, 2) == 0) ? PlayerType.computer : PlayerType.human;
             currentTurn = firstToPlay;
             AssignPlayersSigns(firstToPlay);
-            lbPlayFirst.Text = String.Format(firstPlaysLbl, GetPlayerTypeName());
+            lbPlayFirst.Text = String.Format(firstPlaysLbl, GetCurrentPlayerTypeName());
             gameStarted = true;
-            if (firstToPlay == PlayerType.computer)
-            {
-                PCplay = true;
-                PCtimer.Start();
-            }
-            else
-                PCplay = false;
 
-            lbTurn.Text = "{ " + GetPlayerTypeName() + " igra prvi }";
+            maximizingPlayer = firstToPlay;
+            minimizingPlayer = (firstToPlay == PlayerType.computer) ? PlayerType.human : PlayerType.computer;
+
+            if (firstToPlay == PlayerType.computer)
+                PCtimer.Start();
+
+            lbTurn.Text = "{ " + GetCurrentPlayerTypeName() + " igra prvi }";
         }
 
         private void XorO_Click(object sender, EventArgs e)
         {
-            Button fieldButton = (Button)sender;
+            Button buttonClicked = (Button)sender;
             if (!gameStarted)
                 return;
-            if (fieldButton.Text != "")
+            if (buttonClicked.Text != "")
                 return;
             if (currentTurn == PlayerType.computer)
                 return;
 
-            fieldButton.Text = humanSign.ToString();
-            lbTurn.Text = "{ " + GetOppositePlayerTypeName() + " je na potezu }";
-            availableButtons.Remove(fieldButton);
-            if (CheckForWin(matrixOfButtons, false))
+            buttonClicked.Text = humanSign.ToString();
+            GetAvailableButtons();
+            if (CheckForWin(allButtons, true, GetCurrentPlayerSign()))
             {
                 GameWon();
-                wait(waitTime);
-                if (new CustomDialog("Pobedio je " + GetPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
+                if (new CustomDialog("Pobedio je " + GetCurrentPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
                     RestartGame();
                 return;
             }
+            GetAvailableButtons();
             if (availableButtons.Count == 0)
             {
                 GameDraw();
-                wait(waitTime);
                 if (new CustomDialog(ResLibrary.DrawModalMessage, ResLibrary.DrawLbl).ShowDialog() == DialogResult.Yes)
                     RestartGame();
                 return;
             }
             currentTurn = PlayerType.computer;
-            PCplay = true;
+            lbTurn.Text = "{ " + GetCurrentPlayerTypeName() + " je na potezu }";
             PCtimer.Start();
         }
 
@@ -149,89 +166,165 @@ namespace AdvancedTicTacToe
 
         private void PCtimer_Tick(object sender, EventArgs e)
         {
-            if (PCplay && availableButtons.Count > 0)
+            GetAvailableButtons();
+            if (availableButtons.Count <= 0)
+                return;
+
+            Button[,] availableMoves = matrixOfButtons.Clone() as Button[,];
+            List<Button> clonedAllButtons = new List<Button>();
+            List<Button> tempAvailableButtons = new List<Button>();
+
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                {
+                    clonedAllButtons.Add(availableMoves[i, j]);
+                    if (availableMoves[i, j].Text == "")
+                        tempAvailableButtons.Add(availableMoves[i, j]);
+                }
+
+            int[] randomSteps = { 16, 15, 14, 13 };
+
+            if (Array.Exists(randomSteps, element => element == tempAvailableButtons.Count()))
+                goto RANDOM;
+
+            int bestScore = 0;
+            bool isPlayerMaximizing = firstToPlay == PlayerType.computer;
+            if (isPlayerMaximizing)
+                bestScore = int.MinValue;
+            else
+                bestScore = int.MaxValue;
+
+            List<int> scores = new List<int>();
+
+            Button bestMove = null;
+            int score = 0;
+            Console.WriteLine();
+            Console.WriteLine();
+            foreach (Button tempAvailableMove in tempAvailableButtons)
             {
-                if (true)
+                clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetCurrentPlayerSign();
+                score = Minimax(clonedAllButtons, 0, !isPlayerMaximizing);
+                scores.Add(score);
+                clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
+                Console.WriteLine(tempAvailableMove.Name + ": " + score.ToString());
+                if (isPlayerMaximizing)
                 {
-                    Button[,] availableMoves = matrixOfButtons.Clone() as Button[,];
-
-                    for (int i = 0; i < n; i++)
-                        for (int j = 0; j < n; j++)
-                            if (availableMoves[i, j].Text == "")
-                            {
-                                availableMoves[i, j].Text = (firstToPlay == 0) ? "X" : "O";
-                                if (CheckForWin(availableMoves, true))
-                                {
-                                    availableMoves[i, j].Text = "";
-                                    matrixOfButtons[i, j].Text = (firstToPlay == 0) ? "X" : "O";
-                                    goto CHECK;
-                                }
-                                availableMoves[i, j].Text = "";
-                            }
-
-                    for (int k = 0; k < n; k++)
-                        for (int l = 0; l < n; l++)
-                            if (availableMoves[k, l].Text == "")
-                            {
-                                availableMoves[k, l].Text = (firstToPlay == 0) ? "O" : "X";
-                                if (CheckForWin(availableMoves, true))
-                                {
-                                    availableMoves[k, l].Text = "";
-                                    matrixOfButtons[k, l].Text = (firstToPlay == 0) ? "X" : "O";
-                                    for (int x = 0; x < availableButtons.Count; x++)
-                                        if (availableButtons[x].Name == "b_" + k + "_" + l)
-                                            availableButtons.RemoveAt(x);
-                                    goto CHECK;
-                                }
-                                availableMoves[k, l].Text = "";
-                            }
-                }
-                int index = r.Next(availableButtons.Count);
-                availableButtons[index].Text = (firstToPlay == 0) ? "X" : "O";
-                availableButtons.RemoveAt(index);
-            CHECK:
-                PCtimer.Stop();
-                if (CheckForWin(matrixOfButtons, false))
-                {
-                    GameWon();
-                    wait(waitTime);
-                    if (new CustomDialog("Pobedio je " + GetPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
+                    if (score > bestScore)
                     {
-                        RestartGame();
+                        bestScore = score;
+                        bestMove = tempAvailableMove;
                     }
-                    return;
                 }
-                if (availableButtons.Count == 0)
+                else
                 {
-                    GameDraw();
-                    wait(waitTime);
-                    if (new CustomDialog("Nerešeno\n\nRestartovati igru?", "Nerešeno").ShowDialog() == DialogResult.Yes)
+                    if (score < bestScore)
                     {
-                        RestartGame();
+                        bestScore = score;
+                        bestMove = tempAvailableMove;
                     }
-                    return;
                 }
-                lbTurn.Text = "{ " + GetOppositePlayerTypeName() + " je na potezu }";
-                PCplay = false;
-                currentTurn = PlayerType.human;
+
             }
+            currentTurn = PlayerType.computer;
+            if (scores.Where(s => s.Equals(0)).Count() == scores.Count()) 
+            {
+                goto RANDOM;
+            }
+            if (bestMove != null)
+            {
+                allButtons.First(btn => btn.Name.Equals(bestMove.Name)).Text = GetCurrentPlayerSign();
+                goto CHECK;
+            }
+
+        RANDOM:
+            int index = r.Next(tempAvailableButtons.Count());
+            allButtons.First(btn => btn.Name.Equals(tempAvailableButtons[index].Name)).Text = GetCurrentPlayerSign();
+        CHECK:
+            PCtimer.Stop();
+            if (CheckForWin(allButtons, true, GetCurrentPlayerSign()))
+            {
+                GameWon();
+                if (new CustomDialog("Pobedio je " + GetCurrentPlayerTypeName() + "\n\nRestartovati igru?", "Pobeda").ShowDialog() == DialogResult.Yes)
+                    RestartGame();
+                return;
+            }
+            GetAvailableButtons();
+            if (availableButtons.Count == 0)
+            {
+                GameDraw();
+                if (new CustomDialog("Nerešeno\n\nRestartovati igru?", "Nerešeno").ShowDialog() == DialogResult.Yes)
+                    RestartGame();
+                return;
+            }
+            currentTurn = PlayerType.human;
+            lbTurn.Text = "{ " + GetCurrentPlayerTypeName() + " je na potezu }";
+        }
+
+        private int Minimax(List<Button> clonedAllButtons, int depth, bool isMaximising)
+        {
+            if (depth == 5)
+                return 0;
+            currentTurn = (isMaximising) ? firstToPlay : (firstToPlay == PlayerType.human) ? PlayerType.computer : PlayerType.human;
+            //PrintMatrix(clonedAllButtons);
+            if (CheckForWin(clonedAllButtons, false, GetCurrentPlayerSign()))
+                return (isMaximising) ? 1 : -1;
+
+            if (CheckForWin(clonedAllButtons, false, GetOppositePlayerSign()))
+                return (isMaximising) ? -1 : 1;
+
+            if (clonedAllButtons.Where(btn => btn.Text != "").Count().Equals(n * n))
+                return 0;
+
+            if (isMaximising)
+            {
+                int bestScore = int.MinValue;
+                int score = 0;
+
+                foreach (Button tempAvailableMove in clonedAllButtons)
+                {
+                    if (tempAvailableMove.Text != "")
+                        continue;
+                    clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetPlayerSign(maximizingPlayer);
+                    score = Minimax(clonedAllButtons, depth + 1, !isMaximising);
+                    clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
+                    bestScore = Math.Max(score, bestScore);
+                }
+                return bestScore;
+            }
+            else
+            {
+                int bestScore = int.MaxValue;
+                int score = 0;
+
+                foreach (Button tempAvailableMove in clonedAllButtons)
+                {
+                    if (tempAvailableMove.Text != "")
+                        continue;
+                    clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = GetPlayerSign(minimizingPlayer);
+                    score = Minimax(clonedAllButtons, depth + 1, !isMaximising);
+                    clonedAllButtons.First(btn => btn.Name.Equals(tempAvailableMove.Name)).Text = "";
+                    bestScore = Math.Min(score, bestScore);
+                }
+                return bestScore;
+            }
+
         }
 
         /* !!! Computer logic !!! */
 
         /* Checking for win function */
 
-        private bool CheckForWin(Button[,] matrix, bool clone)
+        private bool CheckForWin(List<Button> buttonsToCheck, bool colorWin, string playerSign)
         {
             int i = 0, j = 0;
 
-            foreach (OrderType order in Enum.GetValues(typeof(OrderType)))
+            foreach (OrderType orderType in Enum.GetValues(typeof(OrderType)))
             {
-                if (CheckWin(order, clone, ref i, ref j))
+                if (CheckWin(buttonsToCheck, orderType, playerSign, ref i, ref j))
                 {
-                    Console.WriteLine("Pobeda lol " + order.ToString());
-                    if (!clone)
-                        ColorWin(order, i, j);
+                    //Console.WriteLine("Pobeda lol " + orderType.ToString());
+                    if (colorWin)
+                        ColorWin(orderType, i, j);
                     return true;
                 }
             }
@@ -272,7 +365,7 @@ namespace AdvancedTicTacToe
             winnerButtons.ForEach(b => b.BackColor = ResLibrary.lightBlue);
         }
 
-        private bool CheckWin(OrderType order, bool clone, ref int index, ref int index2)
+        private bool CheckWin(List<Button> buttonsToCheck, OrderType order, string playerSign, ref int index, ref int index2)
         {
             int i = 0, j = 0;
 
@@ -280,76 +373,77 @@ namespace AdvancedTicTacToe
             string matchRows = "b_[0-3]_{0}";
             string matchMainDiagonal = "b_([0-3])_\\1";
             string matchSecondaryDiagonal = "\\b[bB]_(0_3|3_0|1_2|2_1)\\b";
+            string matchCube = "\\b[b]_{0}_{1}\\b|\\b[b]_{0}_{2}\\b|\\b[b]_{3}_{1}\\b|\\b[b]_{3}_{2}\\b";
 
             string currentPlayerSign = GetCurrentPlayerSign();
-            if (clone)
-                currentPlayerSign = GetOppositePlayerSign();
 
             switch (order)
             {
                 case OrderType.horizontal:
                     {
                         for (i = 0; i < n; i++)
-                            if (allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchColumns, i))).
-                                           Where(field => field.Text == currentPlayerSign).
+                            if (buttonsToCheck.Where(field => Regex.IsMatch(field.Name, String.Format(matchColumns, i))).
+                                           Where(field => field.Text == playerSign).
                                            Count().
                                            Equals(n))
                             {
                                 index = i;
                                 return true;
                             }
-                        return false;
+                        break;
                     }
                 case OrderType.vertical:
                     {
                         for (i = 0; i < n; i++)
-                            if (allButtons.Where(field => Regex.IsMatch(field.Name, String.Format(matchRows, i))).
-                                           Where(field => field.Text == currentPlayerSign).
-                                           Count().
-                                           Equals(n))
+                            if (buttonsToCheck.Where(field => Regex.IsMatch(field.Name, String.Format(matchRows, i))).
+                                               Where(field => field.Text == playerSign).
+                                               Count().
+                                               Equals(n))
                             {
                                 index = i;
                                 return true;
                             }
-                        return false;
+                        break;
                     }
                 case OrderType.mainDiagonal:
                     {
-                        if (allButtons.Where(field => Regex.IsMatch(field.Name, matchMainDiagonal)).
-                                       Where(field => field.Text == currentPlayerSign).
-                                       Count().
-                                       Equals(n))
-                            return true;
-                        return false;
+                        return buttonsToCheck.Where(field => Regex.IsMatch(field.Name, matchMainDiagonal)).
+                                           Where(field => field.Text == playerSign).
+                                           Count().
+                                           Equals(n);
                     }
                 case OrderType.secondaryDiagonal:
                     {
 
-                        if (allButtons.Where(field => Regex.IsMatch(field.Name, matchSecondaryDiagonal)).
-                                       Where(field => field.Text == currentPlayerSign).
-                                       Count().
-                                       Equals(n))
-                            return true;
-                        return false;
+                        return buttonsToCheck.Where(field => Regex.IsMatch(field.Name, matchSecondaryDiagonal)).
+                                           Where(field => field.Text == playerSign).
+                                           Count().
+                                           Equals(n);
                     }
                 case OrderType.cube:
                     {
                         for (i = 0; i < n - 1; i++)
+                        {
                             for (j = 0; j < n - 1; j++)
-                                if (matrixOfButtons[i, j].Text != "" && matrixOfButtons[i, j].Text == matrixOfButtons[i, (j + 1)].Text &&
-                                    matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), j].Text &&
-                                    matrixOfButtons[i, j].Text == matrixOfButtons[(i + 1), (j + 1)].Text)
+                            {
+                                if (buttonsToCheck.Where(field => Regex.IsMatch(field.Name, String.Format(matchCube, i, j, j + 1, i + 1))).
+                                                   Where(field => field.Text == playerSign).
+                                                   Count().
+                                                   Equals(n))
                                 {
                                     index = i;
                                     index2 = j;
                                     return true;
                                 }
-                        return false;
+                            }
+                        }
+                        break;
                     }
                 default:
                     return false;
 
             }
+            return false;
         }
 
         /* !!! Checking for win function !!! */
@@ -380,7 +474,8 @@ namespace AdvancedTicTacToe
         private void GameWon()
         {
             gameStarted = false;
-            lbTurn.Text = "{ " + GetPlayerTypeName() + " je pobedio }";
+            lbTurn.Text = "{ " + GetCurrentPlayerTypeName() + " je pobedio }";
+            wait(waitTime);
             allButtons.ForEach(btn => btn.Enabled = false);
         }
 
@@ -388,6 +483,7 @@ namespace AdvancedTicTacToe
         {
             gameStarted = false;
             lbTurn.Text = ResLibrary.DrawBracketsLbl;
+            wait(waitTime);
             allButtons.ForEach(btn => btn.Enabled = false);
         }
 
@@ -395,22 +491,12 @@ namespace AdvancedTicTacToe
 
         /* Helper functions */
 
-        private string GetPlayerTypeName()
+        private string GetCurrentPlayerTypeName()
         {
             switch (currentTurn)
             {
                 case PlayerType.human: return ResLibrary.humanLbl;
                 case PlayerType.computer: return ResLibrary.computerLbl;
-                default: return "";
-            }
-        }
-
-        private string GetOppositePlayerTypeName()
-        {
-            switch (currentTurn)
-            {
-                case PlayerType.human: return ResLibrary.computerLbl;
-                case PlayerType.computer: return ResLibrary.humanLbl;
                 default: return "";
             }
         }
@@ -429,6 +515,11 @@ namespace AdvancedTicTacToe
         private string GetOppositePlayerSign()
         {
             return (currentTurn == PlayerType.human) ? computerSign.ToString() : humanSign.ToString();
+        }
+
+        private string GetPlayerSign(PlayerType player)
+        {
+            return (player == PlayerType.human) ? humanSign.ToString() : computerSign.ToString();
         }
 
         public void wait(int milliseconds)
@@ -450,6 +541,11 @@ namespace AdvancedTicTacToe
             {
                 Application.DoEvents();
             }
+        }
+
+        private void GetAvailableButtons()
+        {
+            availableButtons = panel1.Controls.OfType<Button>().Where(btn => btn.Text == "").ToList();
         }
 
         /* !!! Helper functions !!! */
